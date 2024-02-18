@@ -47,6 +47,7 @@ async def get_location(message: Message, state: FSMContext):
 async def get_location(message: Message, state: FSMContext):
 	async with state.proxy() as data:
 		data['time'] = message.text
+		User.fill_table_with_data(message.from_user.id, data['date'], data['location'], data['time'])
 	await state.finish()
 	await message.answer('Спасибо за заполнение.')
 

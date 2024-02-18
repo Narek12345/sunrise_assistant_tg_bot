@@ -40,7 +40,13 @@ class User(Base):
 
 	def fill_table_with_data(tg_id, date, location, time):
 		"""Заполняем данными таблицу."""
-		pass
+		with Session(autoflush=False, bind=engine) as db:
+			user = db.query(User).filter(User.tg_id==tg_id).first()
+			user.date = date
+			user.location = location
+			user.time = time
+			db.add(user)
+			db.commit()
 
 
 	def check(tg_id):
