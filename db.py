@@ -59,3 +59,21 @@ class User(Base):
 				return False
 			return True
 
+
+	def get_tg_id_list():
+		with Session(autoflush=False, bind=engine) as db:
+			users = db.query(User).filter(User.date!='').filter(User.location!='').filter(User.time!='').all()
+			tg_id_list = []
+			
+			for user in users:
+				tg_id_list.append(user.tg_id)
+
+			return tg_id_list
+
+
+	def update_date(tg_id, date):
+		with Session(autoflush=False, bind=engine) as db:
+			user = db.query(User).filter(User.tg_id==tg_id).first()
+			user.date = date
+			db.add(user)
+			db.commit()
