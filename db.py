@@ -31,5 +31,25 @@ class User(Base):
 				db.add(new_user)
 				db.commit()
 
+				print(new_user.date)
+				print(type(new_user.date))
+
 				return True
 			return False
+
+
+	def fill_table_with_data(tg_id, date, location, time):
+		"""Заполняем данными таблицу."""
+		pass
+
+
+	def check(tg_id):
+		"""Проверяем, заполнил ли пользователь таблицу данными."""
+		with Session(autoflush=False, bind=engine) as db:
+			user = db.query(User).filter(User.tg_id==tg_id).first()
+
+			if user.date=='' or user.location=='' or user.time=='':
+				# Не заполнил.
+				return False
+			return True
+

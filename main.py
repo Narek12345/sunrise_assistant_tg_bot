@@ -3,24 +3,52 @@ from datetime import datetime
 
 from aiogram import executor
 from aiogram.types import Message
+from aiogram.dispatcher import FSMContext
 
 from utils import scheduler
 from create import bot, dp
 from db import Base, engine, User
+from fsm import FSMData
 
 
-@dp.message_handler(commands=['start'])
+@dp.message_handler(commands=['start'], state=None)
 async def start_cmd(message: Message):
+	tg_id = message.from_user.id
 	# Регистрируем пользователя, если он еще не зарегестрирован.
-	register = User.register(message.from_user.id, message.from_user.username)
+	User.register(tg_id, message.from_user.username)
+	# Проверяем, вводил ли этот пользователь данные или нет.
+	check = User.check(tg_id)
 
-	if register:
-		# Зарегестрирован.
-		print('зарегестрирован')
+	if not check:
+		# Не заполнил. Просим заполнить. FSM.
+		await FSMData.date.set()
+		await message.answer('Введите пожалуйста расписание:')
 	else:
-		# Не зарегестрирован.
-		# Просим заполнить данные.
-		print('Заполни данные')
+		await message.answer('В пятницу бот попросит вас заполнить расписание.')
+
+
+@dp.message_handler(state=FSMData.date)
+async def get_date(message: Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['date'] = message.text
+	await FSMData.next()
+	await message.answer('Введите пожалуйста локацию:')
+
+
+@dp.message_handler(state=FSMData.location)
+async def get_location(message: Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['location'] = message.text
+	await FSMData.next()
+	await message.answer('Введите пожалуйста Д/У/Н:')
+
+
+@dp.message_handler(state=FSMData.time)
+async def get_location(message: Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['time'] = message.text
+	await state.finish()
+	await message.answer('Спасибо за заполнение.')
 
 
 async def main():
