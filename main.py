@@ -1,38 +1,16 @@
 import asyncio
 from datetime import datetime
 
-from aiogram import Bot, Dispatcher
 from aiogram.types import Message
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
 
 from config import API_TOKEN
-
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
-dp.middleware.setup(LoggingMiddleware())
-
-
-async def send_reminder():
-	# Ваш код для отправки напоминания
-	print('Send message')
-
-
-async def check_reminder():
-	current_day = datetime.now().strftime("%A")
-	if current_day == 'Friday':
-		await send_reminder()
-
-
-async def scheduler():
-	while True:
-		await check_reminder()
-		await asyncio.sleep(60)  # Проверка каждую минуту
+from utils import scheduler
+from create imprt bot, dp
 
 
 @dp.message_handler(commands=['start'])
 async def start_cmd(message: Message):
 	await message.answer('Привет, как дела')
-
 
 
 async def main():
