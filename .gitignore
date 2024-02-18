@@ -4,3 +4,6 @@ venv
 
 # Python byte-code.
 __pycache__
+
+# Config
+config.py
