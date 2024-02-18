@@ -1,16 +1,26 @@
 import asyncio
 from datetime import datetime
 
+from aiogram import executor
 from aiogram.types import Message
 
-from config import API_TOKEN
 from utils import scheduler
-from create imprt bot, dp
+from create import bot, dp
+from db import Base, engine, User
 
 
 @dp.message_handler(commands=['start'])
 async def start_cmd(message: Message):
-	await message.answer('Привет, как дела')
+	# Регистрируем пользователя, если он еще не зарегестрирован.
+	register = User.register(message.from_user.id, message.from_user.username)
+
+	if register:
+		# Зарегестрирован.
+		print('зарегестрирован')
+	else:
+		# Не зарегестрирован.
+		# Просим заполнить данные.
+		print('Заполни данные')
 
 
 async def main():
@@ -30,4 +40,6 @@ async def main():
 
 
 if __name__ == '__main__':
+	# Регистрируем БД.
+	Base.metadata.create_all(bind=engine)
 	asyncio.run(main())
