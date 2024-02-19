@@ -2,13 +2,14 @@ import asyncio
 from datetime import datetime
 
 from aiogram import executor
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.dispatcher import FSMContext
 
 from utils import scheduler
 from create import bot, dp
 from db import Base, engine, User
 from fsm import FSMData
+from keyboards import kb_for_date_select, kb_for_time_select
 
 
 @dp.message_handler(commands=['start'], state=None)
@@ -40,16 +41,18 @@ async def get_location(message: Message, state: FSMContext):
 	async with state.proxy() as data:
 		data['location'] = message.text
 	await FSMData.next()
-	await message.answer('Введите время суток (День, Утро, Ночь):')
+	await message.answer('Выберите время суток (День, Утро, Ночь):', reply_markup=kb_for_time_select())
 
 
-@dp.message_handler(state=FSMData.time)
-async def get_location(message: Message, state: FSMContext):
+@dp.callback_query_handler(lambda c: c.data and c.data.startswith('select_time'), state=FSMData.time)
+async def process_callback(callback_query: CallbackQuery, state: FSMContext):
+	time = callback_query.data.split('_')[2]
 	async with state.proxy() as data:
-		data['time'] = message.text
-		User.fill_table_with_data(message.from_user.id, data['date'], data['location'], data['time'])
+		data['time'] = time
+		User.fill_table_with_data(callback_query.from_user.id, data['date'], data['location'], data['time'])
 	await state.finish()
-	await message.answer('Данные сохранены✅')
+	await callback_query.message.answer('Данные сохранены✅')
+	await bot.answer_callback_query(callback_query.id)
 
 
 async def main():
