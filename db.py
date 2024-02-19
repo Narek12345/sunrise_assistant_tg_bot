@@ -31,9 +31,6 @@ class User(Base):
 				db.add(new_user)
 				db.commit()
 
-				print(new_user.date)
-				print(type(new_user.date))
-
 				return True
 			return False
 
