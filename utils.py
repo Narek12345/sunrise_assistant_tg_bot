@@ -32,8 +32,8 @@ async def check_reminder():
 	"""Функция для проверки дня. Если пятница, то делаем рассылку."""
 	current_day = datetime.now().strftime("%A")
 	current_hour = datetime.now().hour
-	if current_day == 'Sunday':
-		if current_hour == 20:
+	if current_day == 'Friday':
+		if current_hour == 10:
 			await send_reminder(dp)
 
 
@@ -42,4 +42,4 @@ async def scheduler():
 	while True:
 		await check_reminder()
 		# Проверка каждую минуту
-		await asyncio.sleep(15)
+		await asyncio.sleep(3590)

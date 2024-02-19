@@ -14,11 +14,11 @@ class User(Base):
 	__tablename__ = 'user'
 
 	id = Column(Integer, primary_key=True)
-	tg_id = Column(Integer)
-	tg_username = Column(String)
-	date = Column(String)
-	location = Column(String)
-	time = Column(String)
+	tg_id = Column(Integer, name="Телеграмм id")
+	tg_username = Column(String, name="Сотрудник")
+	date = Column(String, name="Дата")
+	location = Column(String, name="Локация")
+	time = Column(String, name="Д/У/Н")
 
 
 	def register(tg_id, tg_username):

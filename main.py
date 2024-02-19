@@ -22,9 +22,9 @@ async def start_cmd(message: Message):
 	if not check:
 		# Не заполнил. Просим заполнить. FSM.
 		await FSMData.date.set()
-		await message.answer('Введите пожалуйста расписание:')
+		await message.answer('Введите дату:')
 	else:
-		await message.answer('В пятницу бот попросит вас заполнить расписание.')
+		await message.answer('В пятницу бот попросит вас заполнить дату.')
 
 
 @dp.message_handler(state=FSMData.date)
@@ -32,7 +32,7 @@ async def get_date(message: Message, state: FSMContext):
 	async with state.proxy() as data:
 		data['date'] = message.text
 	await FSMData.next()
-	await message.answer('Введите пожалуйста локацию:')
+	await message.answer('Введите локацию:')
 
 
 @dp.message_handler(state=FSMData.location)
@@ -40,7 +40,7 @@ async def get_location(message: Message, state: FSMContext):
 	async with state.proxy() as data:
 		data['location'] = message.text
 	await FSMData.next()
-	await message.answer('Введите пожалуйста Д/У/Н:')
+	await message.answer('Введите время суток (День, Утро, Ночь):')
 
 
 @dp.message_handler(state=FSMData.time)
@@ -49,7 +49,7 @@ async def get_location(message: Message, state: FSMContext):
 		data['time'] = message.text
 		User.fill_table_with_data(message.from_user.id, data['date'], data['location'], data['time'])
 	await state.finish()
-	await message.answer('Спасибо за заполнение.')
+	await message.answer('Данные сохранены✅')
 
 
 async def main():
