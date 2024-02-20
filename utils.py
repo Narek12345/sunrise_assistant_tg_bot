@@ -36,9 +36,9 @@ async def check_reminder():
 	current_day = datetime.now().strftime("%A")
 	current_hour = datetime.now().hour
 	current_minute = datetime.now().minute
-	if current_day == 'Tuesday': # Friday
-		if current_hour == 19: # 10
-			if current_minute == 21: # 10
+	if current_day == 'Friday': # Friday
+		if current_hour == 10: # 10
+			if current_minute == 10: # 10
 				await send_reminder(dp)
 
 
