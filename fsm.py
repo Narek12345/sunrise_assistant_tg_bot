@@ -9,3 +9,7 @@ class FSMData(StatesGroup):
 
 class FSMDate(StatesGroup):
 	date = State()
+
+
+class FSMLocation(StatesGroup):
+	loc = State()

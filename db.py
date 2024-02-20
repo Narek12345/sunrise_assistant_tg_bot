@@ -74,3 +74,32 @@ class User(Base):
 			user.date = date
 			db.add(user)
 			db.commit()
+
+
+
+class Location(Base):
+	__tablename__ = 'location'
+
+	id = Column(Integer, primary_key=True)
+	num_loc = Column(Integer)
+
+
+	def update_loc(num_loc):
+		with Session(autoflush=False, bind=engine) as db:
+			loc = db.query(Location).filter(Location.id==1).first()
+			loc.num_loc = num_loc
+			db.add(loc)
+			db.commit()
+
+
+	def get_num_loc():
+		with Session(autoflush=False, bind=engine) as db:
+			loc = db.query(Location).filter(Location.id==1).first()
+			return loc.num_loc
+
+
+	def create():
+		with Session(autoflush=False, bind=engine) as db:
+			new_loc = Location(num_loc=7)
+			db.add(new_loc)
+			db.commit()
