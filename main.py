@@ -7,8 +7,8 @@ from aiogram.dispatcher import FSMContext
 from utils import scheduler
 from create import bot, dp
 from db import Base, engine, User, Location
-from fsm import FSMData, FSMLocation
-from keyboards import kb_for_date_select, kb_for_time_select, kb_for_location
+from fsm import FSMData, FSMLocation, FSMDate
+from keyboards import kb_for_date_select, kb_for_time_select, kb_for_location, kb_for_loc_select
 from config import ADMIN_ID
 
 
@@ -23,31 +23,33 @@ async def start_cmd(message: Message):
 	if not check:
 		# Не заполнил. Просим заполнить. FSM.
 		await FSMData.date.set()
-		await message.answer('Введите дату:', reply_markup=kb_for_date_select())
+		await message.answer('Выберите дату:', reply_markup=kb_for_date_select())
 	else:
 		await message.answer('В пятницу бот попросит вас заполнить дату.')
 
 
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('select_date'), state=FSMData.date)
-async def process_callback(callback_query: CallbackQuery, state: FSMContext):
+async def process_callback_1(callback_query: CallbackQuery, state: FSMContext):
 	date = callback_query.data.split('_')[2] + '.' + callback_query.data.split('_')[3] + '.' + callback_query.data.split('_')[4]
 	async with state.proxy() as data:
 		data['date'] = date
 	await FSMData.next()
-	await callback_query.message.answer('Выберите локацию:')
+	await callback_query.message.answer('Выберите локацию:', reply_markup=kb_for_loc_select())
 	await bot.answer_callback_query(callback_query.id)
 
 
-@dp.message_handler(state=FSMData.location)
-async def get_location(message: Message, state: FSMContext):
+@dp.callback_query_handler(lambda c: c.data and c.data.startswith('create_kb'), state=FSMData.location)
+async def process_callback_2(callback_query: CallbackQuery, state: FSMContext):
+	location = callback_query.data.split('_')[2]
 	async with state.proxy() as data:
-		data['location'] = message.text
+		data['location'] = location
 	await FSMData.next()
-	await message.answer('Выберите время суток (День, Утро, Ночь):', reply_markup=kb_for_time_select())
+	await callback_query.message.answer('Выберите время суток (Утро, День, Ночь):', reply_markup=kb_for_time_select())
+	await bot.answer_callback_query(callback_query.id)
 
 
 @dp.callback_query_handler(lambda c: c.data and c.data.startswith('select_time'), state=FSMData.time)
-async def process_callback(callback_query: CallbackQuery, state: FSMContext):
+async def process_callback_3(callback_query: CallbackQuery, state: FSMContext):
 	time = callback_query.data.split('_')[2]
 	async with state.proxy() as data:
 		data['time'] = time
@@ -86,7 +88,6 @@ async def get_location(message: Message, state: FSMContext):
 	except Exception as e:
 		await message.answer('Вы ввели не число. Попробуйте еще раз!')
 	await state.finish()
-	
 
 
 async def main():
